@@ -1,0 +1,31 @@
+# CL2S configuration file
+# 
+# CL2S looks for its configuration file in these locations (in order):
+#   $HOME/.cl2src
+#   /etc/cl2src
+#   <CL2S install dir>/etc/cl2src
+# 
+[Database]
+# SQLAlchemy supported databases
+flavour = sqlite
+# Database host
+host = 
+# Database port
+# port =
+# Database reader user password
+password = 
+# Database reader user
+user = 
+# Name of he database to use
+database = /jwst/data/cl2s.sqlite
+
+[Log]
+# Log verbosity. Supported values are CRITICAL, DEBUG, ERROR, FATAL, INFO, 
+# WARN, WARNING
+level = DEBUG
+
+[Directories]
+# Where to find the pipeline code (for the Grid sake).
+pipeline_root = /hstdev/project/condor_bcw/bcw/python
+# Path to the work directory.
+work_root = /hstdev/project/condor_bcw/work

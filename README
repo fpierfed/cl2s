@@ -1,0 +1,8 @@
+This is a work in progress: you have been warned!
+
+
+Condor Low Latency Scheduling (CL2S)
+Database-based system to execute Condor jobs on a cluster (assumed to be 
+homogeneous) bypassing all match-making negotiations. Makes use of Condor job 
+hooks which run on the compute nodes and fetch jobs directly from a queue. The
+queue can be anything but it is likely to be a database of some sort.
