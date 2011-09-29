@@ -38,6 +38,7 @@ class logit(object):
         assert(log_level in logging.__dict__.keys())
         self.writer = getattr(logger, log_level.lower())
         self.f = f
+        self.__name__ = f.__name__
         return
     
     def __repr__(self):

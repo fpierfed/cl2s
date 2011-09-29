@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import logging
 import sys
 import unittest
 
@@ -6,7 +7,7 @@ import elixir
 
 from cl2s.Job import Job
 from cl2s import JobQueue
-
+from cl2s import logutils
 
 
 
@@ -14,12 +15,14 @@ CLASS_AD = u'PeriodicRemove = false\nCommittedSlotTime = 0\nOut = "calacs_j9am01
 N = 1000
 
 
+logutils.logger.setLevel(logging.WARNING)
+
+
 class TestJobQueue(unittest.TestCase):
     def test_push(self):
         n = 0
         for i in range(N):
-            j = Job(class_ad=CLASS_AD.replace('j9am01070', 'j9am0%04d' % (i)),
-                    dataset=u'j9am0%04d' % (i))
+            j = Job(CLASS_AD.replace('j9am01070', 'j9am0%04d' % (i)))
             JobQueue.push(j)
             n += 1
         self.assertEqual(JobQueue.length(), n)
@@ -29,11 +32,14 @@ class TestJobQueue(unittest.TestCase):
         # TODO: find a vendor agnostic way to test this.
         return
     
-    def test_pop(self):
+    def test_pop_and_delete(self):
         for i in range(N):
             j = JobQueue.pop()
             self.assertIsInstance(j, Job)
+            JobQueue.delete(j)
         self.assertEqual(JobQueue.length(), 0)
+        return
+    
 
 
 
@@ -56,7 +62,7 @@ if(__name__ == '__main__'):
         test_suite = unittest.TestSuite()
         test_suite.addTest(TestJobQueue('test_push'))
         test_suite.addTest(TestJobQueue('test_length'))
-        test_suite.addTest(TestJobQueue('test_pop'))
+        test_suite.addTest(TestJobQueue('test_pop_and_delete'))
         unittest.TextTestRunner(verbosity=2).run(test_suite)
     
 

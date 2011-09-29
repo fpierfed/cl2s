@@ -31,7 +31,7 @@ class Job(ClassAd):
             CL2S_DATASET = ad.InputDataset unless already defined
         """
         # Invoke the superclass constructor.
-        super(self, Job).__init__(ad)
+        super(Job, self).__init__(ad)
         
         # Create our extra instance variables. Modify self._ad_attributes to 
         # reflect the new variables we have created.

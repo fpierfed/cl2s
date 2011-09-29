@@ -34,10 +34,6 @@ from Job import Job
 
 
 
-__all__ = ['pop', 'push', 'length']
-
-
-
 
 
 
@@ -136,14 +132,14 @@ def delete(job):
     elixir.setup_all()
     
     # Find the job using its id.
-    entry = JobQueueEntry.query.get_by(job_id=job.CL2S_JOB_ID)
+    entry = JobQueueEntry.query.filter_by(job_id=job.CL2S_JOB_ID).first()
     if(not entry):
         msg = 'Tried deleting a Job from the queue but could not find it (%s).'
         logutils.warning(msg % (str(job)))
         return
     
     # Delete it.
-    dentry.delete()
+    entry.delete()
     elixir.session.commit()
     return
     

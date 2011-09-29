@@ -99,6 +99,7 @@ class run_with_retries_and_rollback(object):
         self.exception = Exception('Something bad happened.')
         self.retries = 0
         self.f = f
+        self.__name__ = f.__name__
         return
     
     def __repr__(self):
@@ -107,11 +108,12 @@ class run_with_retries_and_rollback(object):
     def __call__(self, *args, **kwargs):
         # Have we tried already the maximum number of times?
         if(self.retries >= self.max_retries):
-            msg = 'Call to %s with args %s and kwargs %s failed %d times.'
-            logutils.critical(msg % (self.f.__module__, 
-                                     self.f.__name__, 
-                                     str(args),
-                                     str(kwargs)))
+            msg = 'Call to %s.%s with args %s and kwargs %s failed %d times.'
+            logutils.logger.critical(msg % (self.f.__module__, 
+                                            self.f.__name__, 
+                                            str(args),
+                                            str(kwargs),
+                                            self.retries))
             raise(self.exception)
         
         try:
@@ -123,7 +125,7 @@ class run_with_retries_and_rollback(object):
             self.retries += 1
             elixir.session.rollback()
             time.sleep(self.sleep_time)
-            self(*args, **kwards)
+            self(*args, **kwargs)
         return(result)
     
     
