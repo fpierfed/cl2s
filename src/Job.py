@@ -26,22 +26,26 @@ class Job(ClassAd):
         """
         Create a Job instance from the input text ClassAd `ad`. This also 
         creates the following instance variables:
-            CL2S_JOB_ID = uuid.uuid4()
-            JobState = 'Queued' if Job.JobState is not defined
-            CL2S_INSTANCES = max(1, N) from the Queue directive
-            CL2S_DATASET = ad.InputDataset
+            CL2S_JOB_ID = uuid.uuid4() unless already defined
+            JobState = 'Queued' unless already defined
+            CL2S_DATASET = ad.InputDataset unless already defined
         """
         # Invoke the superclass constructor.
         super(self, Job).__init__(ad)
         
         # Create our extra instance variables. Modify self._ad_attributes to 
         # reflect the new variables we have created.
-        self.CL2S_JOB_ID = unicode(uuid.uuid4())
-        self.CL2S_DATASET = getattr(self, 'InputDataset', None)
+        if(not hasattr(self, 'CL2S_JOB_ID')):
+            self.CL2S_JOB_ID = unicode(uuid.uuid4())
+            self._ad_attributes.append('CL2S_JOB_ID')
+        
+        if(not hasattr(self, 'CL2S_DATASET')):
+            self.CL2S_DATASET = getattr(self, 'InputDataset', None)
+            self._ad_attributes.append('CL2S_DATASET')
+            
         if(not hasattr(self, 'JobState')):
             self.JobState = 'Queued'
             self._ad_attributes.append('JobState')
-        self._ad_attributes += ['CL2S_JOB_ID', 'CL2S_DATASET']
         return
 
 
