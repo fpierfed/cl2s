@@ -22,7 +22,7 @@ database = /jwst/data/cl2s.sqlite
 [Log]
 # Log verbosity. Supported values are CRITICAL, DEBUG, ERROR, FATAL, INFO, 
 # WARN, WARNING
-level = DEBUG
+level = WARN
 
 [Directories]
 # Where to find the pipeline code (for the Grid sake).

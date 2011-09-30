@@ -129,14 +129,14 @@ def delete(job):
     This is where we delete a Job instance from the queue. It generally means 
     that that system has accepted our job and is running it.
     """
+    # TODO: What is the jow queue entry is not marked busy?????
     elixir.setup_all()
     
     # Find the job using its id.
     entry = JobQueueEntry.query.filter_by(job_id=job.CL2S_JOB_ID).first()
     if(not entry):
         msg = 'Tried deleting a Job from the queue but could not find it (%s).'
-        logutils.warning(msg % (str(job)))
-        return
+        raise(Exception(msg % (str(job))))
     
     # Delete it.
     entry.delete()
@@ -144,7 +144,29 @@ def delete(job):
     return
     
 
-
+@ormutils.run_with_retries_and_rollback
+@logutils.logit
+def reinsert(job):
+    """
+    This is an undo on pop(). It can happen that we propose a Job instance to 
+    the Condor startd and it refoses to accept it. In that case we want to 
+    re-insert that job instance in the queue, i.e. mark it non busy.
+    """
+    # TODO: What is the jow queue entry is not marked busy?????
+    elixir.setup_all()
+    
+    # Find the job using its id.
+    entry = JobQueueEntry.query.filter_by(job_id=job.CL2S_JOB_ID).first()
+    if(not entry):
+        msg = 'Tried reinserting a Job in the queue but could not find it (%s).'
+        raise(Exception(msg % (str(job))))
+    
+    # Mark it non busy.
+    entry.busy = False
+    elixir.session.commit()
+    
+    # Create and return the corresponding Job instance
+    return
 
 
 
