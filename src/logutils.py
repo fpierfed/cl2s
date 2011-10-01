@@ -39,6 +39,7 @@ class logit(object):
         self.writer = getattr(logger, log_level.lower())
         self.f = f
         self.__name__ = f.__name__
+        self.__module__ = f.__module__
         return
     
     def __repr__(self):
