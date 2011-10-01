@@ -1,0 +1,20 @@
+Out = "calacs_j9am$(Process)070.out"
+HookKeyword = "OWL"
+WhenToTransferOutput = "ON_EXIT"
+Cmd = "/jwst/bcw/python/acs_simple/bin/run_calacs.py"
+Iwd = "/jwst/data/work/fpierfed_1316469957.377134"
+Arguments = "j9am$(Process)070_asn.fits"
+In = "/dev/null"
+GetEnv = true
+JobUniverse = 5
+TransferInput = "j9am$(Process)070_asn.fits,j9am$(Process)ejq_raw.fits,j9am$(Process)egq_raw.fits,j9am$(Process)edq_raw.fits,j9am$(Process)emq_raw.fits"
+UserLog = "/jwst/data/work/fpierfed_1316469957.377134/j9am$(Process)070.log"
+TransferFiles = "ONEXIT"
+ShouldTransferFiles = "YES"
+Err = "calacs_j9am$(Process)070.err"
+InputDataset = "j9am$(Process)070"
+JobNotification = 0
+MyType = "Job"
+Owner = "fpierfed"
+Queue 10
+
