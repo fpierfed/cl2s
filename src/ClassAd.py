@@ -61,6 +61,12 @@ def _classad_environment_to_dict(env_str):
     """
     env = {}
     
+    # Remove the leading and traing "
+    if(env_str.startswith('"')):
+        env_str = env_str[1:]
+    if(env_str.endswith('"')):
+        env_str = env_str[:-1]
+    
     # Replace ' ' with '_'
     s = env_str.replace("' '", "'_'")
     # Split on spaces.
@@ -81,8 +87,8 @@ def _dict_to_classad_environment(d):
     s = ''
     for k, v in d.items():
         # Replace ' ' with "' '"
-        s += '%s=%s' % (k, v.replace(' ', "' '"))
-    return('"%s"' % (s))
+        s += '%s=%s ' % (k, v.replace(' ', "' '"))
+    return('"%s"' % (s.strip()))
 
 
 def _python_val_to_classad_val(pyVal):
@@ -230,6 +236,7 @@ class ClassAd(CL2SObject):
             self.Environment = {}
         if(self.getenv):
             self.Environment.update(os.environ)
+            self.getenv = False
         
         # Make sure we have a Owner attribute (set to the current user by 
         # default). If the current user is not set, set it to 'unknown' like
