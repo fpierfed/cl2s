@@ -15,6 +15,15 @@ Usage
 Options
 -verbose
     Verbose output.
+-append command
+    Augment the commands in the submit description file with the given command. 
+    This command will be considered to immediately precede the Queue command 
+    within the submit description file, and come after all other previous 
+    commands. The submit description file is not modified. Multiple commands are
+    specified by using the -append option multiple times. Each new command is 
+    given in a separate -append option. Commands with spaces in them will need 
+    to be enclosed in double quote marks. 
+    
 submit description file
     The pathname to the submit description file. If this optional argument is 
     missing or equal to ``-'', then the commands are taken from standard input. 
@@ -42,13 +51,10 @@ def cl2s_submit(ad, verbose=False):
     if(verbose):
         logutils.logger.setLevel(logging.DEBUG)
     
-    # Parse the raw ad.
+    # Parse the raw ad. Remember that the parsing code stores the raw ClassAd 
+    # attributes both as they are and as lowercase and uppercase.
     classAd = ClassAd.ClassAd(ad)
     logutils.logger.debug('Parsed input ClassAd:\n%s' % (classAd))
-    
-    # For simplicity sake, we extract all of the attributes and turn them
-    # lowercase.
-    attributes = [k.lower() for k in classAd.__dict__.keys()]
     
     # See if we have a Job ad. If not specified, we assume it is a Job ad.
     ad_type = getattr(classAd, 'MyType', 'Job')
@@ -56,6 +62,10 @@ def cl2s_submit(ad, verbose=False):
         logutils.logger.critical('Expecting a Job ClassAd, got a %s ad.' \
                                  % (ad_type))
         return(1)
+    
+    # Remember though that Cmd is the parsed value for Executable...
+    if(hasattr(classAd, 'Executable'.lower())):
+        classAd.Cmd = classAd.executable
     
     # Job ads need a few attributes: Cmd, JobUniverse and Owner.
     required_attrs = ('Cmd', 'JobUniverse', 'Owner')
@@ -80,13 +90,42 @@ def cl2s_submit(ad, verbose=False):
     num_instances = classAd.CL2S_INSTANCES
     
     # Now set classAd.CL2S_INSTANCES to 1
+    print('Submitting job(s).')
     classAd.CL2S_INSTANCES = 1
     new_ad_text = str(classAd)
     for i in range(num_instances):
         # Replace $(Process) with i, create a JOb instance and queue it.
         JobQueue.push(Job.Job(new_ad_text.replace('$(Process)', str(i))))
+    print('%d job(s) submitted to cluster -1.' % (num_instances))
     return
             
+
+
+def extend_ad(ad, extra_lines=[]):
+    """
+    Give a ClassAd `ad` and optionally a list of commands to add to the ad, add
+    those at the end of the ad but before the queue command.
+    """
+    if(not extra_lines):
+        return(ad)
+    
+    # Make sure that extra_lines in not a string but a list.
+    if(isinstance(extra_lines, str) or isinstance(extra_lines, unicode)):
+        extra_lines = [extra_lines, ]
+    
+    # Do a rough split of the input ad.
+    ad_lines = ad.split('\n')
+    
+    # Find the queue command.
+    i = 0
+    for ad_line in ad_lines:
+        if(ad_line.strip().lower().startswith('queue')):
+            break
+        i += 1
+    # Queue is item i. We add the extra lines before item i.
+    new_ad_lines = ad_lines[:i] + extra_lines + ad_lines[i:]
+    return('\n'.join(new_ad_lines))
+
 
 
 
@@ -104,6 +143,11 @@ if(__name__ == '__main__'):
                         default=False,
                         dest='verbose',
                         help='Verbose output.')
+    parser.add_argument('-append', '--append', '-a',
+                        action='append',
+                        required=False,
+                        help='optionally extend the input submit file.',
+                        dest='extra_lines')
     parser.add_argument('submit_file',
                         nargs='?',
                         type=argparse.FileType('r'),
@@ -111,8 +155,12 @@ if(__name__ == '__main__'):
                         help='Submit description file or STDIN if missing or -')
     args = parser.parse_args()
     
+    # Do what you are told and agument the input ad if we need to. Put these 
+    # extra lines, if any, at the end of the ad but before the queue command.
+    extended_ad = extend_ad(args.submit_file.read(), args.extra_lines)
+    
     # Run!
-    sys.exit(cl2s_submit(ad=args.submit_file.read(), verbose=args.verbose))
+    sys.exit(cl2s_submit(ad=extended_ad, verbose=args.verbose))
 
 
 

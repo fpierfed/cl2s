@@ -37,15 +37,12 @@ class Job(ClassAd):
         # reflect the new variables we have created.
         if(not hasattr(self, 'CL2S_JOB_ID')):
             self.CL2S_JOB_ID = unicode(uuid.uuid4())
-            self._ad_attributes.append('CL2S_JOB_ID')
         
         if(not hasattr(self, 'CL2S_DATASET')):
             self.CL2S_DATASET = getattr(self, 'InputDataset', None)
-            self._ad_attributes.append('CL2S_DATASET')
             
-        if(not hasattr(self, 'JobState')):
+        if(not hasattr(self, 'JobState'.lower())):
             self.JobState = 'Queued'
-            self._ad_attributes.append('JobState')
         return
 
 
